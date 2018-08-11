@@ -1,41 +1,37 @@
-// const yargs = require('yargs');
-// const geocode = require('./geocode/geocode');
-// const argv = yargs
-//     .options({
-//         a: {
-//           demand: true,
-//           alias: 'address',
-//           describe: 'Address to fetch weather',
-//           string: true
-//         }
-//     })
-//     .help()
-//     .alias('help', 'h')
-//     .argv;
-//
-// geocode.geocodeAddress(argv.address, (errorMsg, results) => {
-//     if(errorMsg) {
-//       console.log(errorMsg);
-//     } else {
-//       console.log(JSON.stringify(results, undefined, 2));
-//     }
-// });
-//
-// // f54ab10f09094cb79d58fc393bdfeb91
-//
-//
+const yargs = require('yargs');
+const geocode = require('./geocode/geocode');
+const weather = require('./weather/weather');
+
+const argv = yargs
+    .options({
+        a: {
+          demand: true,
+          alias: 'address',
+          describe: 'Address to fetch weather',
+          string: true
+        }
+    })
+    .help()
+    .alias('help', 'h')
+    .argv;
 
 
-const request = require('request');
-
-request({
-  url: 'https://api.darksky.net/forecast/f54ab10f09094cb79d58fc393bdfeb91/-34.6036844,-58.3815591',
-  json: true
-}, (err, response, body) => {
-  if(!err && response.statusCode === 200) {
-    console.log(`The temperature in the requested city is ${body.currently.temperature} !`);
-  } else {
-    console.log('Unable to Fetch data from API');
-  }
-
+geocode.geocodeAddress(argv.address, (errorMsg, results) => {
+    if(errorMsg) {
+      console.log(errorMsg);
+    } else {
+       console.log('=====');
+       console.log(results.address);
+       weather.getWeather(results.latitude, results.longitude, (errorMsg, weatherResults) => {
+             if(errorMsg) {
+               console.log(`Ocurrio un error, ${errorMsg}`);
+             } else {
+               console.log('=====');
+               console.log(`** Temperatura actual: ${weatherResults.temperature}`);
+               console.log(`** Sensacion termica: ${weatherResults.apparentTemperature}`);
+               console.log(`** Breve detalle: ${weatherResults.description}`);
+               console.log('=====');
+             }
+       });
+    }
 });
